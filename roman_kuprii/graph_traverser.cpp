@@ -25,7 +25,8 @@ const unsigned long MAX_WORKERS_COUNT = std::thread::hardware_concurrency();
 GraphTraverser::Path GraphTraverser::find_shortest_path(
     const Graph& graph,
     const VertexId& source_vertex_id,
-    const VertexId& destination_vertex_id) const {
+    const VertexId& destination_vertex_id,
+    Criterion criterion) const {
   assert(graph.is_vertex_exist(source_vertex_id));
   assert(graph.is_vertex_exist(destination_vertex_id));
 
@@ -57,14 +58,25 @@ GraphTraverser::Path GraphTraverser::find_shortest_path(
       const auto& edge = graph.get_edges().at(edge_id);
       VertexId next_vertex_id = edge.connected_vertices.back();
       const auto& next_vertex = graph.get_vertices().at(next_vertex_id);
-      // update distances
-      if (distance[current_vertex.get_id()] + 1 < distance[next_vertex_id]) {
+
+      bool condition;
+      if (criterion == Criterion::Duration)
+        condition = duration[current_vertex.get_id()] + edge.duration <
+                    duration[next_vertex_id];
+      else if (criterion == Criterion::Distance)
+        condition =
+            distance[current_vertex.get_id()] + 1 < distance[next_vertex_id];
+      else
+        throw std::invalid_argument("this criterion is not supported");
+
+      if (condition) {
         vertices_queue.push(next_vertex);
         distance[next_vertex_id] = distance[current_vertex.get_id()] + 1;
         duration[next_vertex_id] =
-            distance[current_vertex.get_id()] + edge.duration;
+            duration[current_vertex.get_id()] + edge.duration;
         all_pathes[next_vertex_id] = all_pathes[current_vertex.get_id()];
         all_pathes[next_vertex_id].push_back(next_vertex_id);
+//FIXME! too early to exit if i check duration
         if (destination_vertex_id == next_vertex_id) {
           Path r_path(all_pathes[next_vertex_id], distance[next_vertex_id],
                       duration[next_vertex_id]);
@@ -88,10 +100,14 @@ std::vector<GraphTraverser::Path> GraphTraverser::traverse_graph() {
   for (const auto& vertex_id : vertex_ids)
     jobs.emplace_back([this, &graph_ = graph_, &completed_jobs, &vertex_id,
                        &pathes, &path_mutex]() {
-      auto path = find_shortest_path(graph_, 0, vertex_id);
+      auto short_path =
+          find_shortest_path(graph_, 0, vertex_id, Criterion::Distance);
+      auto fast_path =
+          find_shortest_path(graph_, 0, vertex_id, Criterion::Duration);
       {
         std::lock_guard lock(path_mutex);
-        pathes.emplace_back(path);
+        pathes.emplace_back(short_path);
+        pathes.emplace_back(fast_path);
       }
       completed_jobs++;
     });

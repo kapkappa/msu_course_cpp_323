@@ -15,10 +15,13 @@ class GraphTraverser {
   using Distance = int;
 
   struct Path {
-    Path(std::vector<VertexId> _vertex_ids, Distance _distance)
-        : vertex_ids(_vertex_ids), distance(_distance) {}
+    Path(std::vector<VertexId> _vertex_ids,
+         Distance _distance,
+         Edge::Duration _duration)
+        : vertex_ids(_vertex_ids), distance(_distance), duration(_duration) {}
     std::vector<VertexId> vertex_ids;
     Distance distance = 0;
+    Edge::Duration duration = 0;
   };
 
   std::vector<Path> traverse_graph();

@@ -1,4 +1,5 @@
 #include <cassert>
+#include <random>
 #include <stdexcept>
 #include <string>
 #include <unordered_map>
@@ -37,13 +38,36 @@ uni_cpp_practice::Edge::Color calculate_edge_color(
   throw std::logic_error("Cant calculate color");
 }
 
-using std::min;
-using std::to_string;
-using std::vector;
+int get_int_random_number(int lower_bound, int upper_bound) {
+  std::random_device rd;
+  std::mt19937 gen(rd());
+  std::uniform_int_distribution<> dis(lower_bound, upper_bound);
+  return dis(gen);
+}
+
+int calculate_duration(const uni_cpp_practice::Edge::Color& color) {
+  int duration;
+  if (color == uni_cpp_practice::Edge::Color::Red)
+    duration = get_int_random_number(2, 4);
+  else if (color == uni_cpp_practice::Edge::Color::Yellow)
+    duration = get_int_random_number(1, 3);
+  else
+    duration = get_int_random_number(1, 2);
+  return duration;
+}
 
 }  // namespace
 
 namespace uni_cpp_practice {
+
+Edge::Edge(const VertexId& start,
+           const VertexId& end,
+           const EdgeId& _id,
+           const Color& _color)
+    : id(_id),
+      connected_vertices({start, end}),
+      color(_color),
+      duration(calculate_duration(_color)) {}
 
 void Vertex::add_edge_id(const EdgeId& _id) {
   assert(!is_edge_id_included(_id, edges_ids_));

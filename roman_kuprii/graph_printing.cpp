@@ -47,6 +47,8 @@ std::string edge_to_json(const Edge& edge) {
   res += to_string(edge.connected_vertices[1]);
   res += "], \"color\": ";
   res += color_to_string(edge.color);
+  res += ", \"duration\": ";
+  res += to_string(edge.duration);
   res += " }";
   return res;
 }
@@ -106,6 +108,8 @@ std::string path_to_json(const GraphTraverser::Path& path) {
   }
   res += "], distance: ";
   res += to_string(path.distance);
+  res += ", duration: ";
+  res += to_string(path.duration);
   res += "}";
   return res;
 }

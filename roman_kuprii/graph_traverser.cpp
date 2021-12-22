@@ -18,6 +18,7 @@ namespace {
 constexpr int UNVISITED = 0;
 constexpr int VISITED = 1;
 constexpr int MAX_DISTANCE = 10000;
+constexpr int MAX_DURATION = 10000;
 const unsigned long MAX_WORKERS_COUNT = std::thread::hardware_concurrency();
 }  // namespace
 
@@ -36,6 +37,9 @@ GraphTraverser::Path GraphTraverser::find_shortest_path(
   // create distances
   std::vector<Distance> distance(vertices_number, MAX_DISTANCE);
   distance[source_vertex_id] = 0;
+  // create duration
+  std::vector<Edge::Duration> duration(vertices_number, MAX_DURATION);
+  duration[source_vertex_id] = 0;
   // create queue
   std::queue<Vertex> vertices_queue;
   vertices_queue.push(source_vertex);
@@ -57,10 +61,13 @@ GraphTraverser::Path GraphTraverser::find_shortest_path(
       if (distance[current_vertex.get_id()] + 1 < distance[next_vertex_id]) {
         vertices_queue.push(next_vertex);
         distance[next_vertex_id] = distance[current_vertex.get_id()] + 1;
+        duration[next_vertex_id] =
+            distance[current_vertex.get_id()] + edge.duration;
         all_pathes[next_vertex_id] = all_pathes[current_vertex.get_id()];
         all_pathes[next_vertex_id].push_back(next_vertex_id);
         if (destination_vertex_id == next_vertex_id) {
-          Path r_path(all_pathes[next_vertex_id], distance[next_vertex_id]);
+          Path r_path(all_pathes[next_vertex_id], distance[next_vertex_id],
+                      duration[next_vertex_id]);
           return r_path;
         }
       }

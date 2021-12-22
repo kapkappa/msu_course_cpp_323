@@ -12,19 +12,22 @@ using EdgeId = int;
 using VertexId = int;
 
 constexpr int INVALID_ID = -1;
+constexpr int INVALID_DURATION = -1;
 
 struct Edge {
+  using Duration = int;
+
   enum class Color { Gray, Green, Blue, Yellow, Red };
 
   const EdgeId id = INVALID_ID;
   const std::array<VertexId, 2> connected_vertices;
   const Color color = Color::Gray;
+  const Duration duration = INVALID_DURATION;
 
   Edge(const VertexId& start,
        const VertexId& end,
        const EdgeId& _id,
-       const Color& _color)
-      : id(_id), connected_vertices({start, end}), color(_color) {}
+       const Color& _color);
 };
 
 struct Vertex {

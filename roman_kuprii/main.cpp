@@ -44,28 +44,40 @@ int handle_graphs_number_input() {
 int handle_depth_input() {
   int depth = INVALID_NEW_DEPTH;
   do {
+    if (std::cin.fail()) {
+      std::cin.clear();
+      std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+    }
     std::cout << "Enter generate graph depth from zero" << std::endl;
     std::cin >> depth;
-  } while (depth <= INVALID_NEW_DEPTH);
+  } while (std::cin.fail() || depth <= INVALID_NEW_DEPTH);
   return depth;
 }
 
 int handle_vertices_number_input() {
   int new_vertices_num = INVALID_NEW_VERTICES_NUMBER;
   do {
+    if (std::cin.fail()) {
+      std::cin.clear();
+      std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+    }
     std::cout << "Enter new_vertices_num from zero" << std::endl;
     std::cin >> new_vertices_num;
-  } while (new_vertices_num < INVALID_NEW_VERTICES_NUMBER);
+  } while (std::cin.fail() || new_vertices_num < INVALID_NEW_VERTICES_NUMBER);
   return new_vertices_num;
 }
 
 int handle_threads_number_input() {
   int threads_count = INVALID_THREADS_NUMBER;
   do {
+    if (std::cin.fail()) {
+      std::cin.clear();
+      std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+    }
     std::cout << "Enter threads number from zero to max_threads: "
               << MAX_THREADS_COUNT << std::endl;
     std::cin >> threads_count;
-  } while (threads_count <= INVALID_THREADS_NUMBER ||
+  } while (std::cin.fail() || threads_count <= INVALID_THREADS_NUMBER ||
            threads_count > MAX_THREADS_COUNT);
   return threads_count;
 }

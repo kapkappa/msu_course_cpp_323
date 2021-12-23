@@ -95,9 +95,20 @@ std::string graph_to_json(const Graph& graph) {
   return res;
 }
 
+std::string criterion_to_string(const GraphTraverser::Criterion& criterion) {
+  switch (criterion) {
+    case GraphTraverser::Criterion::Duration:
+      return "Fastest path: ";
+    case GraphTraverser::Criterion::Distance:
+      return "Shortest path: ";
+  }
+}
+
 std::string path_to_json(const GraphTraverser::Path& path) {
   std::string res;
-  res = "{vertices: [";
+  res = "{";
+  res += criterion_to_string(path.criterion);
+  res += "vertices: [";
   for (const auto& vertex_id : path.vertex_ids) {
     res += to_string(vertex_id);
     res += ", ";

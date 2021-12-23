@@ -3,6 +3,8 @@
 #include <iostream>
 #include <string>
 
+#include "game.hpp"
+#include "game_generator.hpp"
 #include "graph.hpp"
 #include "graph_generation_controller.hpp"
 #include "graph_generator.hpp"
@@ -21,6 +23,8 @@ const std::string DIRECTORY_NAME = "temp";
 
 const int MAX_THREADS_COUNT = std::thread::hardware_concurrency();
 
+using uni_cpp_practice::Game;
+using uni_cpp_practice::GameGenerator;
 using uni_cpp_practice::Graph;
 using uni_cpp_practice::GraphGenerator;
 using uni_cpp_practice::GraphTraverser;
@@ -125,18 +129,35 @@ void traverse_graphs(const std::vector<Graph>& graphs,
 }
 
 int main() {
+  const int depth = handle_depth_input();
+  const int new_vertices_num = handle_vertices_number_input();
+
   auto& logger = Logger::get_logger();
   prepare_temp_directory();
   logger.set_output(LOG_FILENAME);
+  logger.log(uni_cpp_practice::logging_helping::game_preparing_string());
 
-  const int graphs_count = handle_graphs_number_input();
-  const int depth = handle_depth_input();
-  const int new_vertices_num = handle_vertices_number_input();
-  const int threads_count = handle_threads_number_input();
   const auto params = GraphGenerator::Params(depth, new_vertices_num);
+  const auto game_generator = GameGenerator(params);
+  const auto game = game_generator.generate();
 
-  auto graphs = generate_graphs(logger, threads_count, graphs_count, params);
-  traverse_graphs(graphs, logger, threads_count);
+  logger.log(uni_cpp_practice::logging_helping::game_ready_string(game));
+  logger.log(
+      uni_cpp_practice::logging_helping::shortest_path_searching_string());
+
+  const auto shortest_path = game.find_shortest_path();
+
+  logger.log(uni_cpp_practice::logging_helping::shortest_path_ready_string(
+      shortest_path));
+  logger.log(
+      uni_cpp_practice::logging_helping::fastest_path_searching_string());
+
+  const auto fastest_path = game.find_fastest_path();
+
+  logger.log(uni_cpp_practice::logging_helping::fastest_path_ready_string(
+      fastest_path));
+
+  uni_cpp_practice::logging_helping::write_map(game.get_map());
 
   return 0;
 }

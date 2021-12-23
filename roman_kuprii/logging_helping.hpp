@@ -8,6 +8,7 @@
 #include <string>
 #include <vector>
 
+#include "game.hpp"
 #include "graph.hpp"
 #include "graph_printing.hpp"
 #include "graph_traverser.hpp"
@@ -99,6 +100,87 @@ std::string write_traverse_end(
   }
   res += "\n]\n";
   return res;
+}
+
+std::string game_preparing_string() {
+  std::string res = get_datetime();
+  res += " Game is Preparing...\n";
+  return res;
+}
+
+std::string game_ready_string(const Game& game) {
+  std::string res = get_datetime();
+  res += "\n map: {\n";
+  const auto& map = game.get_map();
+  res += "  depth: " + to_string(map.get_depth()) + ",\n";
+  res += "  vertices: {amount: " + to_string(map.get_vertices().size()) +
+         ", distribution: [";
+
+  for (int depth = 0; depth <= map.get_depth(); depth++) {
+    res += to_string(map.get_vertex_ids_at_depth(depth).size()) + ", ";
+  }
+  res.pop_back();
+  res.pop_back();
+  res += "]},\n";
+  res += "  edges: {amount: " + to_string(map.get_edges().size()) +
+         ", distribution: {";
+
+  const auto colors = std::vector<Edge::Color>(
+      {Edge::Color::Gray, Edge::Color::Green, Edge::Color::Blue,
+       Edge::Color::Yellow, Edge::Color::Red});
+
+  for (const auto& color : colors) {
+    res += graph_printing::color_to_string(color) + ": " +
+           to_string(map.get_edge_ids_with_color(color).size()) + ", ";
+  }
+  res.pop_back();
+  res.pop_back();
+  res += "}}\n  },\n";
+
+  res += "  knight position: {vertex_id: ";
+  res += to_string(game.get_knight_position());
+  res += ", depth: ";
+  res += to_string(map.get_vertices().at(game.get_knight_position()).depth);
+  res += "},\n  princess_position: {vertex_id: ";
+  res += to_string(game.get_princess_position());
+  res += ", depth: ";
+  res += to_string(map.get_vertices().at(game.get_princess_position()).depth);
+  res += "}\n}";
+  return res;
+}
+
+std::string shortest_path_searching_string() {
+  std::string res = get_datetime();
+  res += " Searching for shortest path...";
+  return res;
+}
+
+std::string shortest_path_ready_string(const GraphTraverser::Path& path) {
+  std::string res = get_datetime();
+  res += " Shortest path: ";
+  res += graph_printing::path_to_json(path);
+  return res;
+}
+
+std::string fastest_path_searching_string() {
+  std::string res = get_datetime();
+  res += " Searching for fastest path...";
+  return res;
+}
+
+std::string fastest_path_ready_string(const GraphTraverser::Path& path) {
+  std::string res = get_datetime();
+  res += " Fastest path: ";
+  res += graph_printing::path_to_json(path);
+  return res;
+}
+
+void write_map(const Graph& graph) {
+  std::ofstream out;
+  const std::string filename = "map.json";
+  out.open(filename, std::ofstream::out | std::ofstream::trunc);
+  out << graph_printing::graph_to_json(graph);
+  out.close();
 }
 
 }  // namespace logging_helping

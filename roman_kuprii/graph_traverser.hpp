@@ -33,8 +33,7 @@ class GraphTraverser {
 
   std::vector<Path> traverse_graph();
 
-  Path find_optimal_path(const Graph& graph,
-                         const VertexId& source_vertex_id,
+  Path find_optimal_path(const VertexId& source_vertex_id,
                          const VertexId& destination_vertex_id,
                          Criterion criterion) const;
 

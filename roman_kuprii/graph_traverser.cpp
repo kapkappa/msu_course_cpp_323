@@ -76,7 +76,7 @@ GraphTraverser::Path GraphTraverser::find_shortest_path(
             duration[current_vertex.get_id()] + edge.duration;
         all_pathes[next_vertex_id] = all_pathes[current_vertex.get_id()];
         all_pathes[next_vertex_id].push_back(next_vertex_id);
-//FIXME! too early to exit if i check duration
+        // FIXME! too early to exit if i check duration
         if (destination_vertex_id == next_vertex_id) {
           Path r_path(all_pathes[next_vertex_id], distance[next_vertex_id],
                       duration[next_vertex_id]);

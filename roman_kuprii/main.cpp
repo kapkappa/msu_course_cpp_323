@@ -31,9 +31,13 @@ using uni_cpp_practice::graph_traversal_controller::GraphTraversalController;
 int handle_graphs_number_input() {
   int graphs_quantity = GRAPHS_NUMBER;
   do {
+    if (std::cin.fail()) {
+      std::cin.clear();
+      std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+    }
     std::cout << "Enter amount of graphs to generate" << std::endl;
     std::cin >> graphs_quantity;
-  } while (graphs_quantity < GRAPHS_NUMBER);
+  } while (std::cin.fail() || graphs_quantity < GRAPHS_NUMBER);
   return graphs_quantity;
 }
 

@@ -22,7 +22,7 @@ constexpr int MAX_DURATION = 10000;
 const unsigned long MAX_WORKERS_COUNT = std::thread::hardware_concurrency();
 }  // namespace
 
-GraphTraverser::Path GraphTraverser::find_shortest_path(
+GraphTraverser::Path GraphTraverser::find_optimal_path(
     const Graph& graph,
     const VertexId& source_vertex_id,
     const VertexId& destination_vertex_id,
@@ -76,17 +76,19 @@ GraphTraverser::Path GraphTraverser::find_shortest_path(
             duration[current_vertex.get_id()] + edge.duration;
         all_pathes[next_vertex_id] = all_pathes[current_vertex.get_id()];
         all_pathes[next_vertex_id].push_back(next_vertex_id);
-        // FIXME! too early to exit if i check duration
-        if (destination_vertex_id == next_vertex_id) {
+        if (criterion == Criterion::Distance &&
+            destination_vertex_id == next_vertex_id) {
           Path r_path(all_pathes[next_vertex_id], distance[next_vertex_id],
-                      duration[next_vertex_id]);
+                      duration[next_vertex_id], criterion);
           return r_path;
         }
       }
     }
   }
-
-  throw std::logic_error("Vertices dont connected");
+  Path r_path(all_pathes[destination_vertex_id],
+              distance[destination_vertex_id], duration[destination_vertex_id],
+              criterion);
+  return r_path;
 }
 
 std::vector<GraphTraverser::Path> GraphTraverser::traverse_graph() {
@@ -101,9 +103,9 @@ std::vector<GraphTraverser::Path> GraphTraverser::traverse_graph() {
     jobs.emplace_back([this, &graph_ = graph_, &completed_jobs, &vertex_id,
                        &pathes, &path_mutex]() {
       auto short_path =
-          find_shortest_path(graph_, 0, vertex_id, Criterion::Distance);
+          find_optimal_path(graph_, 0, vertex_id, Criterion::Distance);
       auto fast_path =
-          find_shortest_path(graph_, 0, vertex_id, Criterion::Duration);
+          find_optimal_path(graph_, 0, vertex_id, Criterion::Duration);
       {
         std::lock_guard lock(path_mutex);
         pathes.emplace_back(short_path);
